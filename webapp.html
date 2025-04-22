@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rock Paper Scissors</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      text-align: center;
+      padding: 40px;
+      background: linear-gradient(to right, #e0f7fa, #fce4ec);
+      color: #333;
+    }
+    h1 {
+      margin-bottom: 20px;
+      font-size: 36px;
+    }
+    .buttons button {
+      font-size: 18px;
+      padding: 12px 25px;
+      margin: 15px;
+      cursor: pointer;
+      border: none;
+      border-radius: 12px;
+      background-color: #4caf50;
+      color: white;
+      transition: background-color 0.3s, transform 0.2s;
+    }
+    .buttons button:hover {
+      background-color: #43a047;
+      transform: scale(1.05);
+    }
+    .results {
+      margin-top: 30px;
+      font-size: 20px;
+    }
+    .score {
+      margin-top: 15px;
+      font-weight: bold;
+      font-size: 22px;
+    }
+    .winner {
+      margin-top: 25px;
+      font-size: 26px;
+      color: #d81b60;
+      font-weight: bold;
+    }
+    .icon-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-top: 20px;
+      gap: 80px;
+    }
+    .icon {
+      width: 100px;
+      height: 100px;
+      transition: transform 0.5s ease;
+    }
+    .attack {
+      animation: attackMove 0.5s forwards;
+    }
+    @keyframes attackMove {
+      0% { transform: translateX(0); }
+      50% { transform: translateX(-20px) scale(1.2); }
+      100% { transform: translateX(0); }
+    }
+    .crush {
+      animation: crushMove 0.6s ease forwards;
+    }
+    .cut {
+      animation: cutMove 0.6s ease forwards;
+    }
+    .cover {
+      animation: coverMove 0.6s ease forwards;
+    }
+    @keyframes crushMove {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.5) rotate(20deg); }
+      100% { transform: scale(1); }
+    }
+    @keyframes cutMove {
+      0% { transform: rotate(0deg); }
+      50% { transform: rotate(30deg); }
+      100% { transform: rotate(0deg); }
+    }
+    @keyframes coverMove {
+      0% { transform: translateY(0); }
+      50% { transform: translateY(-10px) scale(1.1); }
+      100% { transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <h1>Rock, Paper, Scissors</h1>
+  <div class="buttons">
+    <button onclick="play('rock')">🪨 Rock</button>
+    <button onclick="play('paper')">📄 Paper</button>
+    <button onclick="play('scissors')">✂️ Scissors</button>
+  </div>
+
+  <div class="icon-container">
+    <img id="playerIcon" class="icon" src="" alt="Player choice" />
+    <img id="computerIcon" class="icon" src="" alt="Computer choice" />
+  </div>
+
+  <div class="results">
+    <p id="playerChoice">You chose: -</p>
+    <p id="computerChoice">Computer chose: -</p>
+    <p id="roundResult">Result: -</p>
+    <p class="score" id="score">Score - You: 0 | Computer: 0</p>
+    <p class="winner" id="gameWinner"></p>
+  </div>
+
+  <script>
+    let playerScore = 0;
+    let computerScore = 0;
+
+    const iconMap = {
+      rock: 'https://img.icons8.com/color/96/rock.png',
+      paper: 'https://img.icons8.com/color/96/paper.png',
+      scissors: 'https://img.icons8.com/color/96/scissors.png'
+    };
+
+    function getComputerChoice() {
+      const choices = ['rock', 'paper', 'scissors'];
+      return choices[Math.floor(Math.random() * 3)];
+    }
+
+    function determineWinner(player, computer) {
+      if (player === computer) return 'tie';
+      if (
+        (player === 'rock' && computer === 'scissors') ||
+        (player === 'paper' && computer === 'rock') ||
+        (player === 'scissors' && computer === 'paper')
+      ) {
+        return 'player';
+      } else {
+        return 'computer';
+      }
+    }
+
+    function addWinAnimation(winner, playerChoice, computerChoice) {
+      const playerIcon = document.getElementById('playerIcon');
+      const computerIcon = document.getElementById('computerIcon');
+
+      playerIcon.classList.remove('crush', 'cut', 'cover');
+      computerIcon.classList.remove('crush', 'cut', 'cover');
+
+      if (winner === 'player') {
+        if (playerChoice === 'rock' && computerChoice === 'scissors') {
+          playerIcon.classList.add('crush');
+        } else if (playerChoice === 'paper' && computerChoice === 'rock') {
+          playerIcon.classList.add('cover');
+        } else if (playerChoice === 'scissors' && computerChoice === 'paper') {
+          playerIcon.classList.add('cut');
+        }
+      } else if (winner === 'computer') {
+        if (computerChoice === 'rock' && playerChoice === 'scissors') {
+          computerIcon.classList.add('crush');
+        } else if (computerChoice === 'paper' && playerChoice === 'rock') {
+          computerIcon.classList.add('cover');
+        } else if (computerChoice === 'scissors' && playerChoice === 'paper') {
+          computerIcon.classList.add('cut');
+        }
+      }
+    }
+
+    function play(playerChoice) {
+      if (playerScore >= 5 || computerScore >= 5) return;
+
+      const computerChoice = getComputerChoice();
+      const result = determineWinner(playerChoice, computerChoice);
+
+      document.getElementById('playerChoice').textContent = `You chose: ${playerChoice}`;
+      document.getElementById('computerChoice').textContent = `Computer chose: ${computerChoice}`;
+
+      const playerIcon = document.getElementById('playerIcon');
+      const computerIcon = document.getElementById('computerIcon');
+
+      playerIcon.src = iconMap[playerChoice];
+      computerIcon.src = iconMap[computerChoice];
+
+      playerIcon.className = 'icon';
+      computerIcon.className = 'icon';
+
+      void playerIcon.offsetWidth;
+      void computerIcon.offsetWidth;
+
+      playerIcon.classList.add('attack');
+      computerIcon.classList.add('attack');
+
+      if (result === 'player') {
+        playerScore++;
+        document.getElementById('roundResult').textContent = 'Result: You win this round!';
+      } else if (result === 'computer') {
+        computerScore++;
+        document.getElementById('roundResult').textContent = 'Result: Computer wins this round!';
+      } else {
+        document.getElementById('roundResult').textContent = 'Result: It\'s a tie!';
+      }
+
+      document.getElementById('score').textContent = `Score - You: ${playerScore} | Computer: ${computerScore}`;
+
+      addWinAnimation(result, playerChoice, computerChoice);
+
+      if (playerScore === 5 || computerScore === 5) {
+        document.getElementById('gameWinner').textContent = playerScore === 5 ? '🎉 You win the game!' : '😞 Computer wins the game!';
+      }
+    }
+  </script>
+</body>
+</html>

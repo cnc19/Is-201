@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Drawing Game</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f9f9f9;
+      text-align: center;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1 {
+      color: #333;
+    }
+
+    #prompt {
+      font-size: 24px;
+      margin: 20px;
+    }
+
+    canvas {
+      border: 2px solid #000;
+      background-color: #fff;
+      cursor: crosshair;
+    }
+
+    #checkmark {
+      font-size: 48px;
+      color: green;
+      display: none;
+    }
+
+    #score {
+      font-size: 20px;
+      margin-top: 10px;
+    }
+
+    button, input[type="color"] {
+      margin-top: 10px;
+      padding: 10px 20px;
+      font-size: 16px;
+    }
+
+    .controls {
+      margin: 15px;
+    }
+  </style>
+</head>
+<body>
+  <h1>🎨 Drawing Game</h1>
+  <div id="prompt">Draw a: <strong id="currentPrompt">cat</strong></div>
+
+  <div class="controls">
+    <input type="color" id="colorPicker" value="#000000">
+    <button onclick="activateEraser()">Eraser</button>
+    <button onclick="clearCanvas()">Clear</button>
+  </div>
+
+  <canvas id="canvas" width="400" height="400"></canvas>
+
+  <div>
+    <button onclick="submitDrawing()">Submit Drawing</button>
+    <div id="checkmark">✅</div>
+    <div id="score">Score: 0</div>
+  </div>
+
+  <script>
+    const prompts = ["cat", "sun", "house", "tree", "car", "Cosmo", "stairs", "random"];
+    let currentIndex = 0;
+    let score = 0;
+    let isErasing = false;
+    let brushColor = "#000000";
+
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const checkmark = document.getElementById('checkmark');
+    const promptText = document.getElementById('currentPrompt');
+    const scoreDisplay = document.getElementById('score');
+    const colorPicker = document.getElementById('colorPicker');
+
+    let drawing = false;
+
+    colorPicker.addEventListener("input", () => {
+      brushColor = colorPicker.value;
+      isErasing = false;
+    });
+
+    canvas.addEventListener('mousedown', (e) => {
+      drawing = true;
+      ctx.beginPath();
+      ctx.moveTo(e.offsetX, e.offsetY);
+    });
+
+    canvas.addEventListener('mouseup', () => {
+      drawing = false;
+    });
+
+    canvas.addEventListener('mousemove', draw);
+
+    function draw(e) {
+      if (!drawing) return;
+      ctx.lineWidth = 5;
+      ctx.lineCap = "round";
+      ctx.strokeStyle = isErasing ? "#ffffff" : brushColor;
+      ctx.lineTo(e.offsetX, e.offsetY);
+      ctx.stroke();
+    }
+
+    function submitDrawing() {
+      const guess = prompt("What did you draw?");
+      if (guess && guess.toLowerCase().includes(prompts[currentIndex])) {
+        checkmark.style.display = 'block';
+        score++;
+        scoreDisplay.textContent = `Score: ${score}`;
+        setTimeout(() => {
+          checkmark.style.display = 'none';
+          nextPrompt();
+        }, 1000);
+      } else {
+        alert("Oops! Better luck on the next one...");
+        nextPrompt();
+      }
+    }
+
+    function nextPrompt() {
+      clearCanvas();
+      currentIndex++;
+      if (currentIndex >= prompts.length) {
+        promptText.textContent = "All done!";
+        alert(`Great job! Final score: ${score}`);
+      } else {
+        promptText.textContent = prompts[currentIndex];
+      }
+    }
+
+    function clearCanvas() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+
+    function activateEraser() {
+      isErasing = true;
+    }
+  </script>
+</body>
+</html>
